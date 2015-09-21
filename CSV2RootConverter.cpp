@@ -5,8 +5,8 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
-/*
 #include <vector>
+/*
 #include <string>
 #include "stdio.h"
 #include "time.h"
@@ -44,32 +44,83 @@ bool FileNameCheck(const string inputfilename, const string fileextension)
 	return true;
 }
 
+void PrintHelp(char argv[100]) {
+	cerr << "Usage:" << endl;
+		cerr << "\t" << argv << " (OPTIONS) OUTPUTFILE INPUTFILE1 (INPUTFILE2 ...)" << endl;
+		cerr << endl;
+		cerr << "Options:" << endl;
+		cerr << "\t--help\t\t\tPrint this message" << endl;
+		cerr << "\t--delim / -d DELIMITER\tSet input seperator (default: '\\t' (Tab), specify within double quotes)" << endl;
+		cerr << endl;
+}
+
 int main(int argc, char* argv[]){
-	cerr << "This is the CSV 2 Root converter!" << endl;
-	cerr << "Version 0.1, 2015-09-18" << endl;
+	cerr << endl;
+	cerr << "This is the CSV to Root converter!" << endl;
+	cerr << "Version 0.1.1, 2015-09-21" << endl;
+	cerr << endl;
 	cerr << "Developed by" << endl;
 	cerr << "\tInfineon Technologies AG, Warstein" << endl;
 	cerr << "\tDr. Georg Troska & Dr. Till Neddermann" << endl;
+	cerr << endl;
 
-	if (argc < 3) {
-		cerr << "Usage:" << endl;
-		cerr << "\t" << argv[0] << " OUTPUTFILE INPUTFILE1 (INPUTFILE2 ...)" << endl;
+	int minargs = 2;
+	int optionargs = 0;
+
+	if (argc < minargs+1) {
+		PrintHelp(argv[0]);
 
 		return -1;
 	} else {
-		string outfilename(argv[1]);
-		string inputfilename="";
+		//string outfilename(argv[1]);
+		string outfilename = "";
+		vector<string> inputfilenames;
+		string inputfilename = "";
+		string delimiter = "\t";
 
-		if (!FileNameCheck(outfilename, "root")) return -2;
+		for (int i=1; i<argc; i++) {
+			std::string optionstring(argv[i]);
+
+			//cerr << "Argument " << i << ": '" << optionstring << "'" << endl;
+			if (optionstring == "--help") {
+				PrintHelp(argv[0]);
+
+				return -2;
+			}
+			else if (optionstring == "--delim" || optionstring == "-d") {
+				i++;
+				delimiter = string(argv[i]);
+				//cerr << "Argument " << i << ": '" << delimiter << "'" << endl;
+				optionargs += 2;
+			}
+			else {
+				if (outfilename != "")
+					inputfilenames.push_back(string(argv[i]));
+				else {
+					outfilename = string(argv[i]);
+				}
+			}
+		}
+
+		if (outfilename == "") {
+			cerr << endl << "ERROR: No output file provided. Exiting..." << endl << endl;
+			return -2;
+		}
+		else if (inputfilenames.size() == 0) {
+			cerr << endl << "ERROR: No input file provided. Exiting..." << endl << endl;
+			return -2;
+		}
+
+		//////
+
+		if (!FileNameCheck(outfilename, "root")) {
+			cerr << endl << "ERROR: Output file of wrong type. '.root' required. Exiting..." << endl << endl;
+			return -2;
+		}
 
 		TFile *outfile = new TFile(outfilename.c_str(),"RECREATE");
 
-		/* !!!!!! Check later !!!!!
-		if (!outfile.is_open()) {
-			cerr << "ERROR: Unable to open output file '" << outfilename << "'!" << endl;
-			return -1;
-		}
-		*/
+		// TODO: Check if file is open
 		
 		TTree *tree = new TTree("tree","tree");
 
@@ -87,8 +138,10 @@ int main(int argc, char* argv[]){
 		int entries_total = 0;
 
 		//infile.getline(cline,4095);
-		for (int ifileindex=0; ifileindex<argc-2; ifileindex++) {
-			inputfilename = string(argv[ifileindex+2]);
+		for (unsigned int ifileindex=0; ifileindex<inputfilenames.size(); ifileindex++) {
+
+			inputfilename = inputfilenames[ifileindex];
+			
 			fprintf(stderr, "\t%s\n", inputfilename.c_str());
 
 			ifstream infile (inputfilename.c_str());
@@ -128,7 +181,7 @@ int main(int argc, char* argv[]){
 	
 					//Cut the string-line into var by var
 					while (tabStop < sline.length() -1) { // one col in one row
-						tabStop = sline.find_first_of("\t",tabStart);
+						tabStop = sline.find_first_of(delimiter,tabStart);
 						if (tabStop < 0) {
 								tabStop = sline.length();
 							}
@@ -137,7 +190,7 @@ int main(int argc, char* argv[]){
 						if (lineNumber == 0) {
 							if (ifileindex == 0) name[varCounter] = var;
 							else if (name[varCounter] != var) {
-								cerr << "ERROR: Input '" << inputfilename << "': Column head '" << var << "' in column " << varCounter << " differs from '" << name[varCounter] << "' (first file)!" << endl;
+								cerr << endl << "ERROR: Input '" << inputfilename << "': Column head '" << var << "' in column " << varCounter << " differs from '" << name[varCounter] << "' (first file)!" << endl << endl;
 								outfile->Close();
 								infile.close();
 								return -1;
@@ -183,7 +236,7 @@ int main(int argc, char* argv[]){
 
 							if (ifileindex == 0) kind[varCounter] = mykind;
 							else if (kind[varCounter] != mykind) {
-								cerr << "ERROR: Input '" << inputfilename << "': Column type '" << mykind << "' in column " << varCounter << " differs from '" << kind[varCounter] << "' (first file)!" << endl;
+								cerr << endl << "ERROR: Input '" << inputfilename << "': Column type '" << mykind << "' in column " << varCounter << " differs from '" << kind[varCounter] << "' (first file)!" << endl << endl;
 								outfile->Close();
 								infile.close();
 								return -1;
@@ -218,7 +271,7 @@ int main(int argc, char* argv[]){
 	
 					if (lineNumber == 0 && ifileindex > 0 && varCounter != varCounter_old) {
 							// Abort if number of columns from second (...) input file differs from first one
-							cerr << "ERROR: Number of columns in '" << inputfilename << "' differs from first file! Aborting ..." << endl;
+							cerr  << endl << "ERROR: Number of columns in '" << inputfilename << "' differs from first file! Aborting ..." << endl << endl;
 							outfile->Close();
 							infile.close();
 							return -1;
@@ -236,7 +289,7 @@ int main(int argc, char* argv[]){
 				entries_total += lineNumber -2;
 			}
 		}
-		cout << endl << entries_total << " entries written to file '" << outfilename << "'." << endl;
+		cout << endl << entries_total << " entries written to file '" << outfilename << "'." << endl << endl;
 		outfile->Close();
 	}
 	return 0;
