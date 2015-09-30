@@ -57,7 +57,7 @@ void PrintHelp(char argv[100]) {
 int main(int argc, char* argv[]){
 	cerr << endl;
 	cerr << "This is the CSV to Root converter!" << endl;
-	cerr << "Version 0.1.1, 2015-09-21" << endl;
+	cerr << "Version 0.1.2, 2015-09-30" << endl;
 	cerr << endl;
 	cerr << "Developed by" << endl;
 	cerr << "\tInfineon Technologies AG, Warstein" << endl;
