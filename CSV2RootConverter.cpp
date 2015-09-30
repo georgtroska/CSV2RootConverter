@@ -6,8 +6,8 @@
 #include <fstream>
 #include <algorithm>
 #include <vector>
-/*
 #include <string>
+/*
 #include "stdio.h"
 #include "time.h"
 */
@@ -165,7 +165,6 @@ int main(int argc, char* argv[]){
 	
 	
 					std::string varStr[1000];
-					char varChr[1000][32];
 					int varInt[1000];
 					double varFlt[1000];
 	
@@ -173,7 +172,6 @@ int main(int argc, char* argv[]){
 						varStr[i] = "";
 						varInt[i] = 0;
 						varFlt[i] = 0.;
-						//varChr[i] = "";
 					}
 	
 	
@@ -207,14 +205,8 @@ int main(int argc, char* argv[]){
 								if (ifileindex == 0) cout << "\t\tColumn " << varCounter << " will be ignored, no name is given" << endl;
 							} else if (strcmp(var.c_str(),"STRING")==0) {
 								mykind = 1;
-								//tree->Branch(name[varCounter].c_str(), &varStr[varCounter]); // This line out, then it works!
-								/*
-								char out[64];
-								sprintf(out,"%s/C",name[varCounter].c_str());
-								tree->Branch(name[varCounter].c_str(), varChr[varCounter],out); 
-								*/
 								if (ifileindex == 0) {
-									tree->Branch(name[varCounter].c_str(), varChr[varCounter]); 
+									tree->Branch(name[varCounter].c_str(), &varStr[varCounter]); 
 									cout << "\t\tColumn " << varCounter << " named " << name[varCounter] << " is STRING" << endl;
 								}
 							} else if (strcmp(var.c_str(),"INT")==0 || strcmp(var.c_str(),"DINT")==0 || strcmp(var.c_str(),"BOOL")==0) {
@@ -244,7 +236,6 @@ int main(int argc, char* argv[]){
 						} else if (lineNumber > 1) {
 							if (kind[varCounter] == 1) {
 								varStr[varCounter] = var;
-								sprintf(varChr[varCounter],"%s",var.c_str());
 								//cout << "var is: " << var << endl;
 							} else if (kind[varCounter] == 2) {
 								if (strcmp(var.c_str(),"FALSCH")==0 || strcmp(var.c_str(),"FALSE")==0) {
