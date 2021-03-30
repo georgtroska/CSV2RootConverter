@@ -3,13 +3,13 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <IncludePath>$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSDK_IncludePath);$(ROOTSYS)\include;</IncludePath>
-    <LibraryPath>$(VCInstallDir)lib;$(VCInstallDir)atlmfc\lib;$(WindowsSDK_LibraryPath_x86);$(ROOTSYS)\lib;</LibraryPath>
+    <IncludePath>$(ROOTSYS)include;$(IncludePath);</IncludePath>
+    <LibraryPath>$(ROOTSYS)lib;$(LibraryPath);</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Link>
       <AdditionalLibraryDirectories>$(ROOTSYS)lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>%(AdditionalDependencies);libCore.lib;libCint.lib;libRIO.lib;libNet.lib;libHist.lib;libGraf.lib;libGraf3d.lib;libGpad.lib;libTree.lib;libRint.lib;libPostscript.lib;libMatrix.lib;libPhysics.lib;libMathCore.lib;libThread.lib;libGui.lib</AdditionalDependencies>
+      <AdditionalDependencies>libCore.lib;libRIO.lib;libNet.lib;libHist.lib;libGraf.lib;libGraf3d.lib;libGpad.lib;libTree.lib;libRint.lib;libPostscript.lib;libMatrix.lib;libPhysics.lib;libMathCore.lib;libThread.lib;libGui.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ClCompile>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>

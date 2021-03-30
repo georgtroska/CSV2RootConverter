@@ -2,6 +2,7 @@
 Thumbs.db
 
 #Visual Studio Dateien ignorieren
+.vs/*
 *.obj
 *.exe
 *.pdb
